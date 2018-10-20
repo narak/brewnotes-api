@@ -1,22 +1,24 @@
 {
     "name": "brewnotes-api",
-    "version": "0.1",
+    "version": "0.1.0",
+    "license": "none",
     "author": "Karan Sheth <karan.sheth@gmail.com>",
     "old_scripts": {
-        "prestart": "npm run drop-sqlite-db || true",
-        "poststart": "npm run create-sqlite-db"
+        "prestart": "yarn drop-sqlite-db || true",
+        "poststart": "yarn create-sqlite-db"
     },
     "scripts": {
-        "start": "npm run nodemon",
+        "start": "yarn nodemon",
         "dev": "cross-env NODE_ENV=development node ./api/api.js",
-        "nodemon": "nodemon --exec npm run dev",
+        "nodemon": "nodemon --exec yarn dev",
         "create-sqlite-db": "shx touch ./db/database.sqlite",
         "drop-sqlite-db": "shx rm ./db/database.sqlite",
+        "recreate-sqlite-db": "yarn drop-sqlite-db && yarn create-sqlite-db",
         "lint": "eslint ./api/. ./config/. ./test/.",
-        "prepush": "npm test",
-        "pretest": "npm run lint",
+        "prepush": "yarn",
+        "pretest": "yarn lint",
         "production": "cross-env NODE_ENV=production node ./api/api.js",
-        "test": "npm run create-sqlite-db; cross-env NODE_ENV=testing jest --coverage; npm run drop-sqlite-db",
+        "test": "yarn create-sqlite-db; cross-env NODE_ENV=testing jest --coverage; yarn drop-sqlite-db",
         "test-ci": "jest --coverage --forceExit",
         "prettier:js": "prettier --write \"{api,config,test}/**/*.{js,json}\""
     },
@@ -25,7 +27,9 @@
             "__DEV__": true
         },
         "testEnvironment": "node",
-        "testPathIgnorePatterns": ["/node_modules/"]
+        "testPathIgnorePatterns": [
+            "/node_modules/"
+        ]
     },
     "dependencies": {
         "bcrypt-nodejs": "^0.0.3",
@@ -36,10 +40,10 @@
         "helmet": "^3.12.0",
         "jsonwebtoken": "^8.2.1",
         "sequelize": "^4.37.6",
-        "sqlite3": "^4.0.0"
+        "sqlite3": "^4.0.0",
+        "uuid": "^3.3.2"
     },
     "devDependencies": {
-        "prettier": "^1.14.3",
         "cross-env": "^5.1.4",
         "eslint": "^4.19.1",
         "eslint-config-airbnb-base": "^12.1.0",
@@ -47,6 +51,7 @@
         "husky": "^0.14.3",
         "jest": "^22.4.3",
         "nodemon": "^1.17.3",
+        "prettier": "^1.14.3",
         "shx": "^0.2.2",
         "supertest": "^3.0.0"
     }

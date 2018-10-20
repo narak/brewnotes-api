@@ -1,9 +1,12 @@
+const uuid = require('uuid/v1');
+
 const User = require('../models/User');
 const authService = require('../services/auth.service');
 const bcryptService = require('../services/bcrypt.service');
 
 const handleError = require('../utils/handleError');
 const errorResponse = require('../utils/errorResponse');
+const successResponse = require('../utils/successResponse');
 
 const UserController = () => {
     const register = async (req, res) => {
@@ -11,15 +14,17 @@ const UserController = () => {
 
         if (body.password === body.password2) {
             try {
+
                 const user = await User.create({
+                    uuid: uuid(),
                     email: body.email,
                     password: body.password,
                 });
                 const token = authService().issue({ id: user.id });
 
-                return res.status(200).json({ token, user });
+                return successResponse(res, { token, user });
             } catch (err) {
-                handleError(res, err);
+                return handleError(res, err);
             }
         }
 
@@ -40,7 +45,7 @@ const UserController = () => {
                 if (user && bcryptService().comparePassword(password, user.password)) {
                     const token = authService().issue({ id: user.id });
 
-                    return res.status(200).json({ token, user });
+                    return successResponse(res, { token, user });
                 }
 
                 return errorResponse(res, 401, 'Unauthorized');
@@ -61,7 +66,7 @@ const UserController = () => {
                 return errorResponse(res, 401, 'Invalid Token', { isvalid: false });
             }
 
-            return res.status(200).json({ isvalid: true });
+            return successResponse(res, { isvalid: true });
         });
     };
 
@@ -69,7 +74,7 @@ const UserController = () => {
         try {
             const users = await User.findAll();
 
-            return res.status(200).json({ users });
+            return successResponse(res, { rows: users });
         } catch (err) {
             console.log(err);
             return errorResponse(res, 500, 'Internal server error');
