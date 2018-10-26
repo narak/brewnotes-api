@@ -7,7 +7,7 @@ beforeAll(async () => {
     await beforeAction();
 });
 
-afterAll(() => {
+afterAll(async () => {
     afterAction();
 });
 

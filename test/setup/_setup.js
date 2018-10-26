@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const express = require('express');
 const mapRoutes = require('express-routes-mapper');
@@ -25,6 +26,7 @@ const beforeAction = async () => {
 };
 
 const afterAction = async () => {
+    await mongoose.connection.db.dropDatabase();
     await database.close();
 };
 
