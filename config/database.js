@@ -1,59 +1,79 @@
-const Sequelize = require('sequelize');
-const path = require('path');
+/**
+ * CHANGE THIS
+ */
+const config = {};
+config.development = {
+    dbName: 'brewnotes',
+    user: '',
+    pass: '',
 
-const connection = require('./connection');
+    host: 'localhost',
+    port: '27017',
+};
 
-let database;
+config.testing = {
+    dbName: 'brewnotes-test',
+    user: '',
+    pass: '',
 
-switch (process.env.NODE_ENV) {
-    case 'production':
-        database = new Sequelize(
-            connection.production.database,
-            connection.production.username,
-            connection.production.password,
-            {
-                host: connection.production.host,
-                dialect: connection.production.dialect,
-                pool: {
-                    max: 5,
-                    min: 0,
-                    idle: 10000,
-                },
+    host: 'localhost',
+    port: '27017',
+};
+
+config.production = {
+    dbName: process.env.DB_NAME,
+    user: process.env.DB_USER,
+    pass: process.env.DB_PASS,
+
+    host: process.env.DB_HOST || 'localhost',
+    port: process.env.DB_PORT,
+};
+
+const mongoose = require('mongoose');
+
+/**
+ * Creates a connection object.
+ * @param  {String}   env      Config environment to user
+ * @param  {Function} callback Callback to inform connection status
+ * @return {Object}            Promise object for connection
+ */
+module.exports = {
+    connect: async function connect(env = 'development', callback) {
+        mongoose.Promise = global.Promise;
+
+        const cfg = config[env];
+
+        if (!cfg) {
+            throw new Error(`Couldn't find config for environment ${env}.`);
+        }
+
+        const { host, port, user, pass, dbName } = cfg;
+        const auth = user ? (pass ? `${user}:${pass}@` : `${user}@`) : '';
+
+        console.log(`Connecting to 'mongodb://${user}:****@${host}:${port}/${dbName}'`);
+        try {
+            const conn = await mongoose.connect(
+                `mongodb://${auth}${host}:${port}/${dbName}`,
+                {
+                    bufferCommands: false,
+                    useNewUrlParser: true,
+                }
+            );
+            if (callback) {
+                callback(null, conn.connections[0]);
+            } else {
+                console.log('Connected successfully');
             }
-        );
-        break;
-    case 'testing':
-        database = new Sequelize(
-            connection.testing.database,
-            connection.testing.username,
-            connection.testing.password,
-            {
-                host: connection.testing.host,
-                dialect: connection.testing.dialect,
-                pool: {
-                    max: 5,
-                    min: 0,
-                    idle: 10000,
-                },
+        } catch (err) {
+            if (callback) {
+                callback(err);
+            } else {
+                throw new err();
             }
-        );
-        break;
-    default:
-        database = new Sequelize(
-            connection.development.database,
-            connection.development.username,
-            connection.development.password,
-            {
-                host: connection.development.host,
-                dialect: connection.development.dialect,
-                pool: {
-                    max: 5,
-                    min: 0,
-                    idle: 10000,
-                },
-                storage: path.join(process.cwd(), 'db', 'database.sqlite'),
-            }
-        );
-}
+        }
+    },
 
-module.exports = database;
+    close: function() {
+        mongoose.connection.close();
+    },
+};

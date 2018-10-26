@@ -1,5 +1,3 @@
-const uuid = require('uuid/v1');
-
 const User = require('../models/User');
 const authService = require('../services/auth.service');
 const bcryptService = require('../services/bcrypt.service');
@@ -8,30 +6,28 @@ const handleError = require('../utils/handleError');
 const errorResponse = require('../utils/errorResponse');
 const successResponse = require('../utils/successResponse');
 
-const UserController = () => {
-    const register = async (req, res) => {
+module.exports = class UserController {
+    async register(req, res) {
         const { body } = req;
 
         if (body.password === body.password2) {
             try {
-
                 const user = await User.create({
-                    uuid: uuid(),
                     email: body.email,
                     password: body.password,
                 });
                 const token = authService().issue({ id: user.id });
 
-                return successResponse(res, { token, user });
+                return successResponse(res, { token }, user);
             } catch (err) {
                 return handleError(res, err);
             }
         }
 
         return errorResponse(res, 400, "Passwords don't match");
-    };
+    }
 
-    const login = async (req, res) => {
+    async login(req, res) {
         const { email, password } = req.body;
 
         if (email && password) {
@@ -45,7 +41,7 @@ const UserController = () => {
                 if (user && bcryptService().comparePassword(password, user.password)) {
                     const token = authService().issue({ id: user.id });
 
-                    return successResponse(res, { token, user });
+                    return successResponse(res, { token }, user);
                 }
 
                 return errorResponse(res, 401, 'Unauthorized');
@@ -56,9 +52,9 @@ const UserController = () => {
         }
 
         return errorResponse(res, 400, 'Email or password is wrong');
-    };
+    }
 
-    const validate = (req, res) => {
+    validate(req, res) {
         const { token } = req.body;
 
         authService().verify(token, err => {
@@ -68,25 +64,16 @@ const UserController = () => {
 
             return successResponse(res, { isvalid: true });
         });
-    };
+    }
 
-    const getAll = async (req, res) => {
+    async getAll(req, res) {
         try {
             const users = await User.findAll();
 
-            return successResponse(res, { rows: users });
+            return successResponse(res, undefined, users);
         } catch (err) {
             console.log(err);
             return errorResponse(res, 500, 'Internal server error');
         }
-    };
-
-    return {
-        register,
-        login,
-        validate,
-        getAll,
-    };
+    }
 };
-
-module.exports = UserController;

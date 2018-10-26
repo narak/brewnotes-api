@@ -26,12 +26,10 @@ const Note = sequelize.define(
     { tableName: 'notes' }
 );
 
-
 // eslint-disable-next-line
 Note.prototype.toJSON = function() {
     console.log(this.get());
     return this.get();
 };
-
 
 module.exports = Note;

@@ -1,24 +1,22 @@
 {
     "name": "brewnotes-api",
     "version": "0.1.0",
-    "license": "none",
+    "license": "UNLICENSED",
     "author": "Karan Sheth <karan.sheth@gmail.com>",
     "old_scripts": {
-        "prestart": "yarn drop-sqlite-db || true",
-        "poststart": "yarn create-sqlite-db"
+        "prestart": "yarn drop-db || true",
+        "poststart": "yarn create-db"
     },
     "scripts": {
         "start": "yarn nodemon",
         "dev": "cross-env NODE_ENV=development node ./api/api.js",
         "nodemon": "nodemon --exec yarn dev",
-        "create-sqlite-db": "shx touch ./db/database.sqlite",
-        "drop-sqlite-db": "shx rm ./db/database.sqlite",
-        "recreate-sqlite-db": "yarn drop-sqlite-db && yarn create-sqlite-db",
         "lint": "eslint ./api/. ./config/. ./test/.",
         "prepush": "yarn",
         "pretest": "yarn lint",
         "production": "cross-env NODE_ENV=production node ./api/api.js",
-        "test": "yarn create-sqlite-db; cross-env NODE_ENV=testing jest --coverage; yarn drop-sqlite-db",
+        "coverage": "jest --coverage",
+        "test": "jest",
         "test-ci": "jest --coverage --forceExit",
         "prettier:js": "prettier --write \"{api,config,test}/**/*.{js,json}\""
     },
@@ -36,23 +34,23 @@
         "body-parser": "^1.18.2",
         "cors": "^2.8.4",
         "express": "^4.16.3",
-        "express-routes-mapper": "^1.0.2",
+        "express-routes-mapper": "1.0.2",
         "helmet": "^3.12.0",
         "jsonwebtoken": "^8.2.1",
-        "sequelize": "^4.37.6",
-        "sqlite3": "^4.0.0",
+        "mongoose": "^5.3.6",
         "uuid": "^3.3.2"
     },
     "devDependencies": {
+        "babel-eslint": "^10.0.1",
         "cross-env": "^5.1.4",
-        "eslint": "^4.19.1",
-        "eslint-config-airbnb-base": "^12.1.0",
+        "eslint": "^5.7.0",
+        "eslint-config-prettier": "^3.1.0",
         "eslint-plugin-import": "^2.11.0",
-        "husky": "^0.14.3",
-        "jest": "^22.4.3",
+        "husky": "^1.1.2",
+        "jest": "^23.6.0",
         "nodemon": "^1.17.3",
         "prettier": "^1.14.3",
-        "shx": "^0.2.2",
+        "shx": "^0.3.2",
         "supertest": "^3.0.0"
     }
 }

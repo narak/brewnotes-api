@@ -1,8 +1,6 @@
 const uuid = require('uuid/v1');
 
 const Note = require('../models/Note');
-const authService = require('../services/auth.service');
-const bcryptService = require('../services/bcrypt.service');
 
 const handleError = require('../utils/handleError');
 const errorResponse = require('../utils/errorResponse');
@@ -16,7 +14,7 @@ const NoteController = () => {
             body.uuid = uuid();
             const note = await Note.create(body);
 
-            return successResponse(res, { rows: [note] });
+            return successResponse(res, undefined, note);
         } catch (err) {
             return handleError(res, err);
         }
@@ -28,7 +26,7 @@ const NoteController = () => {
             const { body } = req;
             const note = await Note.findOne({ uuid });
             await note.update(body);
-            return successResponse(res, { rows: [note] });
+            return successResponse(res, undefined, note);
         } catch (err) {
             return handleError(res, err);
         }
@@ -38,7 +36,7 @@ const NoteController = () => {
         try {
             const uuid = req.param.uuid;
             const note = await Note.findOne({ uuid });
-            return successResponse(res, { rows: [note] });
+            return successResponse(res, undefined, note);
         } catch (err) {
             console.log(err);
             return errorResponse(res, 500, 'Internal server error');
@@ -49,7 +47,7 @@ const NoteController = () => {
         try {
             const notes = await Note.findAll();
 
-            return successResponse(res, { rows: notes });
+            return successResponse(res, undefined, notes);
         } catch (err) {
             console.log(err);
             return errorResponse(res, 500, 'Internal server error');
@@ -61,7 +59,7 @@ const NoteController = () => {
             const uuid = req.param.uuid;
             const note = await Note.findOne({ uuid });
             await note.destroy();
-            return successResponse(res, { rows: [note] });
+            return successResponse(res, undefined, note);
         } catch (err) {
             return handleError(res, err);
         }

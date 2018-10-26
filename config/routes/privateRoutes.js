@@ -5,7 +5,6 @@ const privateRoutes = {
     'GET /notes/:uuid': 'NoteController.get',
     'POST /notes/:uuid': 'NoteController.update',
     'GET /notes': 'NoteController.getAll',
-    'DELETE /notes/:uuid': 'NoteController.delete',
 };
 
 module.exports = privateRoutes;

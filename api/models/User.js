@@ -1,38 +1,22 @@
-const Sequelize = require('sequelize');
+const mongoose = require('mongoose');
 const bcryptService = require('../services/bcrypt.service');
 
-const sequelize = require('../../config/database');
+const UserSchema = new mongoose.Schema({
+    email: { type: String, required: true, index: { unique: true } },
+    password: { type: String, required: true },
+    role: String,
+});
 
-const hooks = {
-    beforeCreate(user) {
+UserSchema.pre('save', function(next) {
+    const user = this;
+
+    // only hash the password if it has been modified (or is new)
+    if (!user.isModified('password')) {
+        return next();
+    } else {
         user.password = bcryptService().password(user);
-    },
-};
+        return next();
+    }
+});
 
-const tableName = 'users';
-
-const User = sequelize.define(
-    'User',
-    {
-        uuid: { type: Sequelize.UUID, primaryKey: true },
-        email: {
-            type: Sequelize.STRING,
-            unique: true,
-        },
-        password: {
-            type: Sequelize.STRING,
-        },
-    },
-    { hooks, tableName }
-);
-
-// eslint-disable-next-line
-User.prototype.toJSON = function() {
-    const values = Object.assign({}, this.get());
-
-    delete values.password;
-
-    return values;
-};
-
-module.exports = User;
+module.exports = mongoose.model('User', UserSchema);

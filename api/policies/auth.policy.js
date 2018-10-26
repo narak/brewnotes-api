@@ -27,7 +27,9 @@ module.exports = (req, res, next) => {
     }
 
     return JWTService().verify(tokenToVerify, (err, thisToken) => {
-        if (err) return res.status(401).json({ err });
+        if (err) {
+            return res.status(401).json({ err });
+        }
         req.token = thisToken;
         return next();
     });
