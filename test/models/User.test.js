@@ -12,7 +12,7 @@ afterAll(() => {
 });
 
 const mockUser = {
-    email: 'user@hostname',
+    email: 'modeluser@hostname',
     password: 'test_password',
 };
 
@@ -35,7 +35,7 @@ test('User is created correctly', async () => {
 test('User is updated correctly', async () => {
     const user = await User.findOne({ email: mockUser.email });
 
-    const newEmail = 'user_2@hostname';
+    const newEmail = 'modeluser_2@hostname';
     user.email = newEmail;
     user.role = 'admin';
     await user.save();

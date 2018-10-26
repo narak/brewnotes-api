@@ -32,11 +32,7 @@ module.exports = class UserController {
 
         if (email && password) {
             try {
-                const user = await User.findOne({
-                    where: {
-                        email,
-                    },
-                });
+                const user = await User.findOne({ email });
 
                 if (user && bcryptService().comparePassword(password, user.password)) {
                     const token = authService().issue({ id: user.id });
@@ -68,7 +64,7 @@ module.exports = class UserController {
 
     async getAll(req, res) {
         try {
-            const users = await User.findAll();
+            const users = await User.find();
 
             return successResponse(res, undefined, users);
         } catch (err) {

@@ -39,6 +39,8 @@ const mongoose = require('mongoose');
  */
 module.exports = {
     connect: async function connect(env = 'development', callback) {
+        const isTestEnv = env === 'testing';
+
         mongoose.Promise = global.Promise;
 
         const cfg = config[env];
@@ -50,7 +52,7 @@ module.exports = {
         const { host, port, user, pass, dbName } = cfg;
         const auth = user ? (pass ? `${user}:${pass}@` : `${user}@`) : '';
 
-        console.log(`Connecting to 'mongodb://${user}:****@${host}:${port}/${dbName}'`);
+        !isTestEnv && console.log(`Connecting to 'mongodb://${user}:****@${host}:${port}/${dbName}'`);
         try {
             const conn = await mongoose.connect(
                 `mongodb://${auth}${host}:${port}/${dbName}`,
@@ -62,7 +64,7 @@ module.exports = {
             if (callback) {
                 callback(null, conn.connections[0]);
             } else {
-                console.log('Connected successfully');
+                !isTestEnv && console.log('Connected successfully');
             }
         } catch (err) {
             if (callback) {

@@ -7,25 +7,34 @@ const helmet = require('helmet');
 const http = require('http');
 const mapRoutes = require('express-routes-mapper');
 const cors = require('cors');
+const morgan = require('morgan');
+const compression = require('compression');
+const fs = require('fs');
+const path = require('path');
 
 /**
  * server configuration
  */
 const config = require('../config/');
-const dbService = require('./services/db.service');
 const auth = require('./policies/auth.policy');
+const database = require('../config/database');
 
-// environment: development, staging, testing, production
+// environment: development, testing, production
 const environment = process.env.NODE_ENV;
+database.connect(environment);
 
 /**
  * express application
  */
 const app = express();
-const server = http.Server(app);
-const mappedOpenRoutes = mapRoutes(config.publicRoutes, 'api/controllers/');
-const mappedAuthRoutes = mapRoutes(config.privateRoutes, 'api/controllers/');
-const DB = dbService(environment, config.migrate).start();
+
+// create a write stream (in append mode)
+const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'w' });
+app.use(morgan('combined', { stream: accessLogStream }));
+app.use(morgan('common'));
+
+// gzip
+app.use(compression());
 
 // allow cross origin requests
 // configure to only allow requests from certain origins
@@ -48,9 +57,10 @@ app.use(bodyParser.json());
 app.all('/private/*', (req, res, next) => auth(req, res, next));
 
 // fill routes for express application
-app.use('/public', mappedOpenRoutes);
-app.use('/private', mappedAuthRoutes);
+app.use('/public', mapRoutes(config.publicRoutes, 'api/controllers/'));
+app.use('/private', mapRoutes(config.privateRoutes, 'api/controllers/'));
 
+const server = http.Server(app);
 server.listen(config.port, () => {
     if (
         environment !== 'production' &&
@@ -62,5 +72,5 @@ server.listen(config.port, () => {
         );
         process.exit(1);
     }
-    return DB;
+    console.log(`Server started at http://localhost:${config.port}`);
 });

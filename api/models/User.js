@@ -1,11 +1,24 @@
 const mongoose = require('mongoose');
 const bcryptService = require('../services/bcrypt.service');
+const { hideMongoDetails } = require('./common');
 
-const UserSchema = new mongoose.Schema({
-    email: { type: String, required: true, index: { unique: true } },
-    password: { type: String, required: true },
-    role: String,
-});
+const schemaOptions = {
+    toJSON: {
+        transform: function(doc, obj) {
+            obj = hideMongoDetails(doc, obj);
+            delete obj.password;
+            return obj;
+        },
+    },
+};
+
+const UserSchema = new mongoose.Schema(
+    {
+        email: { type: String, required: true, index: { unique: true } },
+        password: { type: String, required: true },
+    },
+    schemaOptions
+);
 
 UserSchema.pre('save', function(next) {
     const user = this;
