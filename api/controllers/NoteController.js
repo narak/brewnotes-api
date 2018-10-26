@@ -1,5 +1,3 @@
-const uuid = require('uuid/v1');
-
 const Note = require('../models/Note');
 
 const handleError = require('../utils/handleError');
@@ -8,10 +6,9 @@ const successResponse = require('../utils/successResponse');
 
 const NoteController = () => {
     const create = async (req, res) => {
-        const { body } = req;
+        const { body, json } = req;
 
         try {
-            body.uuid = uuid();
             const note = await Note.create(body);
 
             return successResponse(res, undefined, note);
@@ -22,10 +19,10 @@ const NoteController = () => {
 
     const update = async (req, res) => {
         try {
-            const uuid = req.param.uuid;
+            const id = req.params.id;
             const { body } = req;
-            const note = await Note.findOne({ uuid });
-            await note.update(body);
+            await Note.replaceOne({ _id: id }, body);
+            const note = await Note.findById(id);
             return successResponse(res, undefined, note);
         } catch (err) {
             return handleError(res, err);
@@ -34,8 +31,8 @@ const NoteController = () => {
 
     const get = async (req, res) => {
         try {
-            const uuid = req.param.uuid;
-            const note = await Note.findOne({ uuid });
+            const id = req.params.id;
+            const note = await Note.findById(id);
             return successResponse(res, undefined, note);
         } catch (err) {
             console.log(err);
@@ -45,8 +42,7 @@ const NoteController = () => {
 
     const getAll = async (req, res) => {
         try {
-            const notes = await Note.findAll();
-
+            const notes = await Note.find();
             return successResponse(res, undefined, notes);
         } catch (err) {
             console.log(err);
@@ -56,9 +52,8 @@ const NoteController = () => {
 
     const _delete = async (req, res) => {
         try {
-            const uuid = req.param.uuid;
-            const note = await Note.findOne({ uuid });
-            await note.destroy();
+            const id = req.params.id;
+            const note = await Note.findByIdAndRemove(id);
             return successResponse(res, undefined, note);
         } catch (err) {
             return handleError(res, err);

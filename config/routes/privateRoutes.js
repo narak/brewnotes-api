@@ -1,10 +1,10 @@
 const privateRoutes = {
     'GET /users': 'UserController.getAll',
 
-    // 'POST /notes': 'NoteController.create',
-    // 'GET /notes/:uuid': 'NoteController.get',
-    // 'POST /notes/:uuid': 'NoteController.update',
-    // 'GET /notes': 'NoteController.getAll',
+    'POST /notes': 'NoteController.create',
+    'GET /notes/:id': 'NoteController.get',
+    'POST /notes/:id': 'NoteController.update',
+    'GET /notes': 'NoteController.getAll',
 };
 
 module.exports = privateRoutes;
